@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+    background: #000000;
+    /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #434343, #000000);
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #434343, #000000);
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.navbar {
+    background: #000000;
+    /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #434343, #000000);
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #434343, #000000);
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.nav-link {
+    color: gray;
+}
+.navbar-brand{
+    color: #FFF691;
+    pointer-events: none;
+}
+
+.nav-link:hover{
+    color: white;
+}
+
+
+.container-index {
+    display: flex;
+}
+
+.games .custom-card img {
+    width: 200px;
+}
+
+.games .custom-card {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-left: 50px;
+    padding: 0;
+}
+
+.action,
+.sports {
+    display: flex;
+    gap: 20px;
+    position: relative;
+    left: 100px;
+}
+
+.adventure {
+    display: flex;
+    gap: 20px;
+    position: relative;
+    right: 5px;
+}
+
+.action img,
+.sports img,
+.adventure img {
+    border-radius: 15px;
+}
+
+.cyberpunk-bg {
+    position: absolute;
+    top: 100px;
+    /* left: 60px; */
+    z-index: -1;
+    background-image: none;
+}
+
+.intro {
+    margin: 30px 0px 0px 95px;
+    width: 95vw;
+}
+.intro p {
+    margin-top: 20px;
+    width: 375px;
+}
+
+.search-flex-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+
+.full-game-post img {
+    width: 200px;
+}
