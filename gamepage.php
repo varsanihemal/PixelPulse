@@ -4,7 +4,6 @@ require ('includes/connect.php');
 
 // Check if the user is logged in and if they are an admin
 $isLoggedIn = isset($_SESSION['user_id']);
-$isAdmin = $isLoggedIn && isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1;
 
 if (isset($_GET['id'])) {
     $gamePageId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
@@ -26,7 +25,17 @@ if (isset($_GET['id'])) {
         header("Location: index.php");
         exit;
     }
+    // Fetch comments for the game from the database
+    $query = "SELECT * FROM comments WHERE game_id = :game_id ORDER BY created_at DESC";
+    $statement = $db->prepare($query);
+    $statement->bindParam(':game_id', $gamePageId, PDO::PARAM_INT);
+    $statement->execute();
+    $comments = $statement->fetchAll();
+} else {
+    header("Location: index.php");
+    exit;
 }
+
 
 ?>
 
@@ -71,11 +80,31 @@ if (isset($_GET['id'])) {
                 <p>
                     <?= $fullgame['release_date'] ?>
                 </p>
-                <?php if ($isLoggedIn || $isAdmin): ?>
+                <?php if ($isLoggedIn): ?>
                     <a href="editgame.php?id=<?= $gamePageId ?>" class="btn btn-primary">Edit</a>
-                <?php endif; ?>
+                    <?php endif; ?>
+                    <a href="comment.php?id=<?= $gamePageId ?>" class="btn btn-primary">Add Comment</a>
             </div>
         </div>
+        <!-- Comment -->
+        <?php if (!empty($comments)): ?>
+            <h3>Comments</h3>
+            <ul>
+                <?php foreach ($comments as $comment): ?>
+                    <li>
+                        <?= $comment['content'] ?>
+                        <p>Created at:
+                            <?= $comment['created_at'] ?>
+                        </p>
+                        <?php if ($comment['updated_at'] !== null): ?>
+                            <p>Updated at:
+                                <?= $comment['updated_at'] ?>
+                            </p>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
