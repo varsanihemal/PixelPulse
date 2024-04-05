@@ -36,29 +36,34 @@ if (isset($_GET['id'])) {
 // Handle comment submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validate input
-    $name = trim($_POST['name']);
+    $name = isset($_POST['name']) ? trim($_POST['name']) : ''; // Handle if 'name' is not set
     $content = trim($_POST['content']);
 
-    // Insert the comment into the database
-    $query = "INSERT INTO comments (game_id, user_id, content, created_at) VALUES (:game_id, :user_id, :content, NOW())";
-    $statement = $db->prepare($query);
-    $statement->bindParam(':game_id', $gamePageId, PDO::PARAM_INT);
-
-    // Check if the user is logged in
-    if ($isLoggedIn) {
-        $userId = $_SESSION['user_id'];
+    // Validate CAPTCHA
+    if ($_SESSION['captcha'] !== $_POST['captcha']) {
+        $captcha_error = "CAPTCHA verification failed. Please try again.";
     } else {
-        // If the user is not logged in, set user_id to a default value (e.g., 0)
-        $userId = 0;
+        // Insert the comment into the database
+        $query = "INSERT INTO comments (game_id, user_id, content, created_at) VALUES (:game_id, :user_id, :content, NOW())";
+        $statement = $db->prepare($query);
+        $statement->bindParam(':game_id', $gamePageId, PDO::PARAM_INT);
+
+        // Check if the user is logged in
+        if ($isLoggedIn) {
+            $userId = $_SESSION['user_id'];
+        } else {
+            // If the user is not logged in, set user_id to a default value (e.g., 0)
+            $userId = 0;
+        }
+        $statement->bindParam(':user_id', $userId, PDO::PARAM_INT);
+
+        $statement->bindParam(':content', $content, PDO::PARAM_STR);
+        $statement->execute();
+
+        // Redirect back to the game page after submitting the comment
+        header("Location: gamepage.php?id=$gamePageId");
+        exit;
     }
-    $statement->bindParam(':user_id', $userId, PDO::PARAM_INT);
-
-    $statement->bindParam(':content', $content, PDO::PARAM_STR);
-    $statement->execute();
-
-    // Redirect back to the game page after submitting the comment
-    header("Location: gamepage.php?id=$gamePageId");
-    exit;
 }
 ?>
 
@@ -80,6 +85,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <div class="container">
         <h2>Add Comment</h2>
+        <?php if (isset($captcha_error)): ?>
+            <div class="alert alert-danger" role="alert">
+                <?php echo $captcha_error; ?>
+            </div>
+        <?php endif; ?>
         <form method="post" action="comment.php?id=<?= $gamePageId ?>">
             <?php if (!$isLoggedIn): ?>
                 <div class="mb-3">
@@ -91,7 +101,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label for="content" class="form-label">Comment</label>
                 <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <!-- CAPTCHA -->
+            <div class="mb-3">
+                <label for="captcha" class="form-label">CAPTCHA</label>
+                <input type="text" class="form-control" id="captcha" name="captcha" required>
+                <img src="captcha.php" alt="">
+            </div>
+            <!-- End CAPTCHA -->
+            <button type="submit" name="submit_comment" class="btn btn-primary">Submit</button>
         </form>
     </div>
 
