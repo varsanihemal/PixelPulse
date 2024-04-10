@@ -46,4 +46,3 @@ function getAllUsers()
     }
     return $users;
 }
-

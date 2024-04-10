@@ -39,10 +39,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = isset($_POST['name']) ? trim($_POST['name']) : ''; // Handle if 'name' is not set
     $content = trim($_POST['content']);
 
-    // Validate CAPTCHA
-    if ($_SESSION['captcha'] !== $_POST['captcha']) {
-        $captcha_error = "CAPTCHA verification failed. Please try again.";
-    } else {
+
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Insert the comment into the database
         $query = "INSERT INTO comments (game_id, user_id, content, created_at) VALUES (:game_id, :user_id, :content, NOW())";
         $statement = $db->prepare($query);
@@ -84,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php include ('includes/nav.php'); ?>
 
     <div class="container">
-        <h2>Add Comment</h2>
+        <h2>Add Comment for <?= $fullgame['title']; ?></h2>
         <?php if (isset($captcha_error)): ?>
             <div class="alert alert-danger" role="alert">
                 <?php echo $captcha_error; ?>
@@ -102,11 +101,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
             </div>
             <!-- CAPTCHA -->
-            <div class="mb-3">
+            <!-- <div class="mb-3">
                 <label for="captcha" class="form-label">CAPTCHA</label>
                 <input type="text" class="form-control" id="captcha" name="captcha" required>
                 <img src="captcha.php" alt="">
-            </div>
+            </div> -->
             <!-- End CAPTCHA -->
             <button type="submit" name="submit_comment" class="btn btn-primary">Submit</button>
         </form>
