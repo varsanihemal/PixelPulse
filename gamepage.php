@@ -2,8 +2,11 @@
 session_start();
 require ('includes/connect.php');
 
-// Check if the user is logged in and if they are an admin
+// Check if the user is logged in
 $isLoggedIn = isset($_SESSION['user_id']);
+
+// Check if the user is an admin
+$isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
 
 if (isset($_GET['id'])) {
     $gamePageId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
@@ -35,8 +38,6 @@ if (isset($_GET['id'])) {
     header("Location: index.php");
     exit;
 }
-
-
 ?>
 
 <!-- HTML -->
@@ -52,13 +53,10 @@ if (isset($_GET['id'])) {
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="./utilities/fullgame.css">
 </head>
-</head>
 
 <body>
 
-    <?php
-    include ('includes/nav.php');
-    ?>
+    <?php include ('includes/nav.php'); ?>
 
     <div class="container">
         <div class="fullpage-container">
@@ -80,10 +78,13 @@ if (isset($_GET['id'])) {
                 <p>
                     <?= $fullgame['release_date'] ?>
                 </p>
-                <?php if ($isLoggedIn): ?>
+                <?php if ($isAdmin): ?>
+                    <a href="manage_comments.php?id=<?= $gamePageId ?>" class="btn btn-primary">Manage Comments</a>
+                <?php endif; ?>
+                <?php if ($isLoggedIn && $isAdmin): ?>
                     <a href="editgame.php?id=<?= $gamePageId ?>" class="btn btn-primary">Edit</a>
-                    <?php endif; ?>
-                    <a href="comment.php?id=<?= $gamePageId ?>" class="btn btn-primary">Add Comment</a>
+                <?php endif; ?>
+                <a href="comment.php?id=<?= $gamePageId ?>" class="btn btn-primary">Add Comment</a>
             </div>
         </div>
         <!-- Comment -->
@@ -91,17 +92,15 @@ if (isset($_GET['id'])) {
             <h3>Comments</h3>
             <ul>
                 <?php foreach ($comments as $comment): ?>
-                    <li>
-                        <?= $comment['content'] ?>
-                        <p>Created at:
-                            <?= $comment['created_at'] ?>
-                        </p>
-                        <?php if ($comment['updated_at'] !== null): ?>
-                            <p>Updated at:
-                                <?= $comment['updated_at'] ?>
-                            </p>
-                        <?php endif; ?>
-                    </li>
+                    <?php if ($comment['moderation_status'] !== 'hidden'): ?> <!-- Check if the comment is not hidden -->
+                        <li>
+                            <?= $comment['content'] ?>
+                            <p>Created at: <?= $comment['created_at'] ?></p>
+                            <?php if ($comment['updated_at'] !== null): ?>
+                                <p>Updated at: <?= $comment['updated_at'] ?></p>
+                            <?php endif; ?>
+                        </li>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </ul>
         <?php endif; ?>
