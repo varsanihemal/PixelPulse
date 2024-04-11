@@ -1,7 +1,7 @@
 <?php
 session_start();
 require ('includes/connect.php');
-include('fetch.php');
+include ('fetch.php');
 
 // Function to fetch games by category
 function fetchByCategory($category)
@@ -42,7 +42,7 @@ $rows = fetchByCategory(isset($_GET['category']) ? $_GET['category'] : null);
 // Check if the user is logged in
 $isLoggedIn = isset($_SESSION['user_id']);
 
-// Sort the games if sort parameter is provided in the URL and the user is logged in
+// Sort the games if sort parameter is provided in the URL and if user is logged in
 if ($isLoggedIn && isset($_GET['sort'])) {
     switch ($_GET['sort']) {
         case 'title':
@@ -75,9 +75,7 @@ if ($isLoggedIn && isset($_GET['sort'])) {
 
 <body>
 
-    <?php
-    include ('./includes/nav.php');
-    ?>
+    <?php include ('./includes/nav.php'); ?>
 
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -112,11 +110,11 @@ if ($isLoggedIn && isset($_GET['sort'])) {
         <?php foreach ($rows as $row): ?>
             <div class="game">
                 <?php if (!empty($row['cover_image_path'])): ?>
-                    <a href="gamepage.php?id=<?= $row['game_id'] ?>">
+                    <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= $row['slug'] ?>">
                         <!-- <img src="<?= $row['cover_image_path'] ?>" alt=""> -->
                     </a>
                 <?php endif; ?>
-                <a href="gamepage.php?id=<?= $row['game_id'] ?>">
+                <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= $row['slug'] ?>">
                     <p><?= $row['title'] ?></p>
                 </a>
                 <?php if (isset($_GET['sort']) && $_GET['sort'] === 'release_date'): ?>

@@ -1,7 +1,7 @@
 <?php
 include ('fetch.php');
 
-if (isset ($_POST['submit'])) {
+if (isset($_POST['submit'])) {
     $search = $_POST['search'];
 
     if (!preg_match("/^\d{4}$/", $search)) {

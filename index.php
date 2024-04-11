@@ -16,7 +16,7 @@ $statement_adventure->execute();
 
 $query3 = "SELECT * FROM games WHERE category_id = 3";
 $statement_sports = $db->prepare($query3);
-$statement_sports->execute();   
+$statement_sports->execute();
 
 ?>
 
@@ -61,16 +61,17 @@ $statement_sports->execute();
                     <!-- Displaying action game images -->
                     <div class="action">
                         <?php while ($row = $statement_action->fetch()): ?>
-                            <a href="gamepage.php?id=<?= $row['game_id'] ?>">
+                            <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= $row['slug'] ?>">
                                 <img src="<?= $row['cover_image_path'] ?>" alt="">
                             </a>
                         <?php endwhile; ?>
+
                     </div>
 
                     <!-- Displaying adventure game images -->
                     <div class="adventure">
                         <?php while ($row = $statement_adventure->fetch()): ?>
-                            <a href="gamepage.php?id=<?= $row['game_id'] ?>">
+                            <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= $row['slug'] ?>">
                                 <img src="<?= $row['cover_image_path'] ?>" alt="">
                             </a>
                         <?php endwhile; ?>
@@ -79,7 +80,7 @@ $statement_sports->execute();
                     <!-- Displaying Sports/Racing games images -->
                     <div class="sports">
                         <?php while ($row = $statement_sports->fetch()): ?>
-                            <a href="gamepage.php?id=<?= $row['game_id'] ?>">
+                            <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= $row['slug'] ?>">
                                 <img src="<?= $row['cover_image_path'] ?>" alt="">
                             </a>
                         <?php endwhile; ?>
