@@ -104,7 +104,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if ($isLoggedIn): ?>
                 <!-- Display edit and delete buttons for logged-in users -->
                 <button type="submit" class="btn btn-primary" name="edit_game">Edit Game</button>
-                <button type="submit" class="btn btn-danger" name="delete_game">Delete Game</button>
+                <form method="post" action="delete_game.php">
+                    <input type="hidden" name="game_id" value="<?= $game['game_id'] ?>">
+                    <button type="submit" class="btn btn-danger" name="delete_game">Delete Game</button>
+                </form>
+
             <?php endif; ?>
         </form>
     </div>

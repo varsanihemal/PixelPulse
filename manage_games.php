@@ -2,6 +2,10 @@
 session_start();
 include ('./includes/connect.php');
 
+$query = "SELECT * FROM games";
+$statement = $db->query($query);
+$games = $statement->fetchAll(PDO::FETCH_ASSOC);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
     $title = $_POST['title'];
     $description = $_POST['description'];
@@ -75,6 +79,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
             </div>
             <button type="submit" class="btn btn-primary" name="add_game">Add Game</button>
         </form>
+        <h2>Existing Games</h2>
+        <div class="row">
+            <?php foreach ($games as $game): ?>
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title"><?= $game['title'] ?></h5>
+                            <!-- <p class="card-text"><?= $game['description'] ?></p> -->
+                            <p class="card-text">Price: $<?= $game['price'] ?></p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <!-- Edit -->
+                                <a href="editgame.php?id=<?= $game['game_id'] ?>" class="btn btn-primary">Edit</a>
+                                <!-- Delete -->
+                                <form method="post" action="delete_game.php">
+                                    <input type="hidden" name="game_id" value="<?= $game['game_id'] ?>">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+
+        </div>
 
     </div>
 
