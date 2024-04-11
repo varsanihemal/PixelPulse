@@ -33,15 +33,15 @@ if (isset($_GET['id'])) {
     exit;
 }
 
-// Handle comment submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validate input
     $name = isset($_POST['name']) ? trim($_POST['name']) : ''; // Handle if 'name' is not set
     $content = trim($_POST['content']);
 
-
-
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Check CAPTCHA
+    if (!isset($_SESSION['captcha']) || $_SESSION['captcha'] != $_POST['captcha']) {
+        $captcha_error = "CAPTCHA code is incorrect. Please try again.";
+    } else {
         // Insert the comment into the database
         $query = "INSERT INTO comments (game_id, user_id, content, created_at) VALUES (:game_id, :user_id, :content, NOW())";
         $statement = $db->prepare($query);
@@ -51,8 +51,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($isLoggedIn) {
             $userId = $_SESSION['user_id'];
         } else {
-            // If the user is not logged in, set user_id to a default value (e.g., 0)
-            $userId = 0;
+            // If the user is not logged in, set user_id to NULL
+            $userId = null;
         }
         $statement->bindParam(':user_id', $userId, PDO::PARAM_INT);
 
@@ -65,7 +65,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
+// Generate a random CAPTCHA code
+$captcha = substr(md5(mt_rand()), 0, 6);
+$_SESSION['captcha'] = $captcha;
+
+$keepContent = isset($_POST['content']) ? $_POST['content'] : '';
+
+// Generate a random CAPTCHA code
+$captcha = substr(md5(mt_rand()), 0, 6);
+$_SESSION['captcha'] = $captcha;
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -99,15 +109,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <?php endif; ?>
             <div class="mb-3">
                 <label for="content" class="form-label">Comment</label>
-                <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
+                <textarea class="form-control" id="content" name="content" rows="3" required><?= htmlspecialchars($keepContent) ?></textarea>
             </div>
-            <!-- CAPTCHA -->
-            <!-- <div class="mb-3">
-                <label for="captcha" class="form-label">CAPTCHA</label>
+            <div class="mb-3">
+                <label for="captcha" class="form-label">CAPTCHA</label><br>
                 <input type="text" class="form-control" id="captcha" name="captcha" required>
-                <img src="captcha.php" alt="">
-            </div> -->
-            <!-- End CAPTCHA -->
+                <img src="captcha.php" alt="CAPTCHA"><br>
+            </div>
             <button type="submit" name="submit_comment" class="btn btn-primary">Submit</button>
         </form>
     </div>

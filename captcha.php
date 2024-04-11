@@ -1,20 +1,23 @@
 <?php
 session_start();
 
-// Generate a random CAPTCHA string
-$captchaString = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 6);
+// Generate a random CAPTCHA code if it's not already generated
+if (!isset($_SESSION['captcha'])) {
+    $_SESSION['captcha'] = substr(md5(mt_rand()), 0, 6);
+}
 
-// Store the CAPTCHA string in the PHP session
-$_SESSION['captcha'] = $captchaString;
+$image = imagecreatetruecolor(120, 30);
+$bgColor = imagecolorallocate($image, 255, 255, 255); // white bg
+imagefilledrectangle($image, 0, 0, 120, 30, $bgColor);
 
-// Generate CAPTCHA image
-$captchaImage = imagecreatetruecolor(120, 50);
-$bgColor = imagecolorallocate($captchaImage, 255, 255, 255);
-$textColor = imagecolorallocate($captchaImage, 0, 0, 0);
-imagefilledrectangle($captchaImage, 0, 0, 120, 50, $bgColor);
-imagettftext($captchaImage, 20, 0, 10, 35, $textColor, 'arial.ttf', $captchaString);
+$textColor = imagecolorallocate($image, 0, 0, 0);// text black
 
-// Output the CAPTCHA image
-header('Content-type: image/png');
-imagepng($captchaImage);
-imagedestroy($captchaImage);
+// Add the CAPTCHA code to the image
+imagestring($image, 5, 10, 5, $_SESSION['captcha'], $textColor);
+
+// Output the image as PNG
+header("Content-type: image/png");
+imagepng($image);
+
+imagedestroy($image);
+?>
