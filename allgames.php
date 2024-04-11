@@ -57,6 +57,11 @@ if ($isLoggedIn && isset($_GET['sort'])) {
     }
 }
 
+// Function to generate slug from title
+function generateSlug($title) {
+    return strtolower(str_replace(' ', '-', $title));
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -110,11 +115,11 @@ if ($isLoggedIn && isset($_GET['sort'])) {
         <?php foreach ($rows as $row): ?>
             <div class="game">
                 <?php if (!empty($row['cover_image_path'])): ?>
-                    <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= $row['slug'] ?>">
+                    <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>">
                         <!-- <img src="<?= $row['cover_image_path'] ?>" alt=""> -->
                     </a>
                 <?php endif; ?>
-                <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= $row['slug'] ?>">
+                <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>">
                     <p><?= $row['title'] ?></p>
                 </a>
                 <?php if (isset($_GET['sort']) && $_GET['sort'] === 'release_date'): ?>

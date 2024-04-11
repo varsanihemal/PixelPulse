@@ -22,6 +22,12 @@ if (isset($_POST['submit'])) {
 
     $stm->execute();
 }
+
+// Function to generate slug from title
+function generateSlug($title)
+{
+    return strtolower(str_replace(' ', '-', $title));
+}
 ?>
 
 
@@ -49,7 +55,7 @@ if (isset($_POST['submit'])) {
                     <div class="search-card">
                         <img width="150px" src="<?= $row['cover_image_path'] ?>" alt="">
                         <p>
-                            <a href="gamepage.php?id=<?= $row['game_id'] ?>">
+                            <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>">
                                 <?= $row['title'] ?>
                             </a>
                         </p>

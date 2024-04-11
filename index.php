@@ -3,7 +3,6 @@ session_start();
 $success_message = isset($_SESSION['success_message']) ? $_SESSION['success_message'] : '';
 unset($_SESSION['success_message']);
 
-
 require ('includes/connect.php');
 
 $query1 = "SELECT * FROM games WHERE category_id = 1";
@@ -18,6 +17,11 @@ $query3 = "SELECT * FROM games WHERE category_id = 3";
 $statement_sports = $db->prepare($query3);
 $statement_sports->execute();
 
+// Function to generate slug from title
+function generateSlug($title)
+{
+    return strtolower(str_replace(' ', '-', $title));
+}
 ?>
 
 <!DOCTYPE html>
@@ -61,17 +65,16 @@ $statement_sports->execute();
                     <!-- Displaying action game images -->
                     <div class="action">
                         <?php while ($row = $statement_action->fetch()): ?>
-                            <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= $row['slug'] ?>">
+                            <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>">
                                 <img src="<?= $row['cover_image_path'] ?>" alt="">
                             </a>
                         <?php endwhile; ?>
-
                     </div>
 
                     <!-- Displaying adventure game images -->
                     <div class="adventure">
                         <?php while ($row = $statement_adventure->fetch()): ?>
-                            <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= $row['slug'] ?>">
+                            <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>">
                                 <img src="<?= $row['cover_image_path'] ?>" alt="">
                             </a>
                         <?php endwhile; ?>
@@ -80,7 +83,7 @@ $statement_sports->execute();
                     <!-- Displaying Sports/Racing games images -->
                     <div class="sports">
                         <?php while ($row = $statement_sports->fetch()): ?>
-                            <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= $row['slug'] ?>">
+                            <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>">
                                 <img src="<?= $row['cover_image_path'] ?>" alt="">
                             </a>
                         <?php endwhile; ?>

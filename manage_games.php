@@ -12,20 +12,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
     $price = $_POST['price'];
     $category_id = $_POST['category_id'];
 
-    $slug = strtolower(str_replace(' ', '-', $_POST['slug']));
-
     // Validate form data
     if (empty($title) || empty($description) || empty($price) || empty($category_id)) {
         $error_message = "All fields are required.";
     } else {
         // Insert the game details into the database
-        $query = "INSERT INTO games (category_id, title, description, price, slug) VALUES (:category_id, :title, :description, :price, :slug)";
+        $query = "INSERT INTO games (category_id, title, description, price) VALUES (:category_id, :title, :description, :price)";
         $statement = $db->prepare($query);
         $statement->bindParam(':category_id', $category_id, PDO::PARAM_INT);
         $statement->bindParam(':title', $title, PDO::PARAM_STR);
         $statement->bindParam(':description', $description, PDO::PARAM_STR);
         $statement->bindParam(':price', $price, PDO::PARAM_STR);
-        $statement->bindParam(':slug', $slug, PDO::PARAM_STR);
 
         if ($statement->execute()) {
             header("Location: allgames.php");
@@ -35,6 +32,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
         }
     }
 }
+function generateSlug($title)
+{
+    return strtolower(str_replace(' ', '-', $title));
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -72,10 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
                 <input type="text" class="form-control" id="price" name="price" required>
             </div>
             <div class="mb-3">
-                <label for="slug" class="form-label">Slug</label>
-                <input type="text" class="form-control" id="slug" name="slug" required>
-            </div>
-            <div class="mb-3">
                 <label for="category" class="form-label">Category</label>
                 <select class="form-select" id="category" name="category_id" required>
                     <option value="">Select a category</option>
@@ -88,34 +86,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
         </form>
         <h2>Existing Games</h2>
         <div class="row">
-        <?php foreach ($games as $game): ?>
-    <div class="col-md-4">
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title"><?= $game['title'] ?></h5>
-                <!-- <p class="card-text"><?= $game['description'] ?></p> -->
-                <p class="card-text">Price: $<?= $game['price'] ?></p>
-                <div class="d-flex justify-content-between align-items-center">
-                    <!-- View Game -->
-                    <a href="gamepage.php?id=<?= $game['game_id'] ?>&slug=<?= $game['slug'] ?>" class="btn btn-primary">View Game</a>
-                    <!-- Edit -->
-                    <a href="editgame.php?id=<?= $game['game_id'] ?>" class="btn btn-primary">Edit</a>
-                    <!-- Delete -->
-                    <form method="post" action="delete_game.php">
-                        <input type="hidden" name="game_id" value="<?= $game['game_id'] ?>">
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
+            <?php foreach ($games as $game): ?>
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title"><?= $game['title'] ?></h5>
+                            <!-- <p class="card-text"><?= $game['description'] ?></p> -->
+                            <p class="card-text">Price: <?= $game['price'] ?></p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <!-- View Game -->
+                                <a href="gamepage.php?id=<?= $game['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>"
+                                    class="btn btn-primary">View Game</a>
+                                <!-- Edit -->
+                                <a href="editgame.php?id=<?= $game['game_id'] ?>" class="btn btn-primary">Edit</a>
+                                <!-- Delete -->
+                                <form method="post" action="deletegame.php">
+                                    <input type="hidden" name="game_id" value="<?= $game['game_id'] ?>">
+                                    <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Are you sure you want to delete this game?')">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            <?php endforeach; ?>
         </div>
     </div>
-<?php endforeach; ?>
-
-
-        </div>
-
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
