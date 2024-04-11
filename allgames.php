@@ -1,10 +1,11 @@
 <?php
 session_start();
-include ('fetch.php');
+require ('includes/connect.php');
+include('fetch.php');
 
+// Function to fetch games by category
 function fetchByCategory($category)
 {
-
     global $statement_action, $statement_adventure, $statement_sports;
 
     switch ($category) {
@@ -17,12 +18,46 @@ function fetchByCategory($category)
         default:
             return array_merge($statement_action->fetchAll(), $statement_adventure->fetchAll(), $statement_sports->fetchAll());
     }
-
 }
 
-$rows = fetchByCategory(isset($_GET['category']) ? $_GET['category'] : null);
-?>
+// Sort functions
+function sortTitle($a, $b)
+{
+    return strcmp($a['title'], $b['title']);
+}
 
+function sortReleaseDate($a, $b)
+{
+    return strcmp($a['release_date'], $b['release_date']);
+}
+
+function sortPrice($a, $b)
+{
+    return strcmp($a['price'], $b['price']);
+}
+
+// Fetch games based on category
+$rows = fetchByCategory(isset($_GET['category']) ? $_GET['category'] : null);
+
+// Check if the user is logged in
+$isLoggedIn = isset($_SESSION['user_id']);
+
+// Sort the games if sort parameter is provided in the URL and the user is logged in
+if ($isLoggedIn && isset($_GET['sort'])) {
+    switch ($_GET['sort']) {
+        case 'title':
+            usort($rows, 'sortTitle');
+            break;
+        case 'release_date':
+            usort($rows, 'sortReleaseDate');
+            break;
+        case 'price':
+            usort($rows, 'sortPrice');
+            break;
+    }
+}
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -49,11 +84,29 @@ $rows = fetchByCategory(isset($_GET['category']) ? $_GET['category'] : null);
             Categories
         </a>
         <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="?category=action">Action</a></li>
-            <li><a class="dropdown-item" href="?category=adventure">Adventure</a></li>
-            <li><a class="dropdown-item" href="?category=sports">Sports/Racing</a></li>
+            <li><a class="dropdown-item"
+                    href="?category=action<?= isset($_GET['sort']) ? '&sort=' . $_GET['sort'] : '' ?>">Action</a>
+            </li>
+            <li><a class="dropdown-item"
+                    href="?category=adventure<?= isset($_GET['sort']) ? '&sort=' . $_GET['sort'] : '' ?>">Adventure</a>
+            </li>
+            <li><a class="dropdown-item"
+                    href="?category=sports<?= isset($_GET['sort']) ? '&sort=' . $_GET['sort'] : '' ?>">Sports/Racing</a>
+            </li>
+            <li><a class="dropdown-item" href="?<?= isset($_GET['sort']) ? 'sort=' . $_GET['sort'] : '' ?>">View All
+                    Games</a></li>
         </ul>
     </li>
+
+    <!-- Sorting options -->
+    <?php if ($isLoggedIn): ?>
+        <div class="sort">
+            <a href="?category=<?= isset($_GET['category']) ? $_GET['category'] : '' ?>&sort=title">Sort by Title</a> |
+            <a href="?category=<?= isset($_GET['category']) ? $_GET['category'] : '' ?>&sort=release_date">Sort by Release
+                Date</a> |
+            <a href="?category=<?= isset($_GET['category']) ? $_GET['category'] : '' ?>&sort=price">Sort by Price</a>
+        </div>
+    <?php endif; ?>
 
     <div class="card-container">
         <?php foreach ($rows as $row): ?>
@@ -66,6 +119,11 @@ $rows = fetchByCategory(isset($_GET['category']) ? $_GET['category'] : null);
                 <a href="gamepage.php?id=<?= $row['game_id'] ?>">
                     <p><?= $row['title'] ?></p>
                 </a>
+                <?php if (isset($_GET['sort']) && $_GET['sort'] === 'release_date'): ?>
+                    <p>Release Date: <?= $row['release_date'] ?></p>
+                <?php elseif (isset($_GET['sort']) && $_GET['sort'] === 'price'): ?>
+                    <p>Price: <?= $row['price'] ?></p>
+                <?php endif; ?>
             </div>
         <?php endforeach; ?>
     </div>
