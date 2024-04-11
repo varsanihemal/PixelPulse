@@ -56,20 +56,18 @@ $rows = fetchByCategory(isset($_GET['category']) ? $_GET['category'] : null);
     </li>
 
     <div class="card-container">
-        <div class="game-card">
-            <?php foreach ($rows as $row): ?>
-                <div class="game">
-                    <?php if (!empty($row['cover_image_path'])): ?>
-                        <a href="gamepage.php?id=<?= $row['game_id'] ?>">
-                            <img src="<?= $row['cover_image_path'] ?>" alt="">
-                        </a>
-                    <?php endif; ?>
-                    <div class="card-body">
-
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
+        <?php foreach ($rows as $row): ?>
+            <div class="game">
+                <?php if (!empty($row['cover_image_path'])): ?>
+                    <a href="gamepage.php?id=<?= $row['game_id'] ?>">
+                        <!-- <img src="<?= $row['cover_image_path'] ?>" alt=""> -->
+                    </a>
+                <?php endif; ?>
+                <a href="gamepage.php?id=<?= $row['game_id'] ?>">
+                    <p><?= $row['title'] ?></p>
+                </a>
+            </div>
+        <?php endforeach; ?>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
