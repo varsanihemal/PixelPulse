@@ -2,10 +2,17 @@
 session_start();
 include ('./includes/connect.php');
 
+// Fetch existing games
 $query = "SELECT * FROM games";
 $statement = $db->query($query);
 $games = $statement->fetchAll(PDO::FETCH_ASSOC);
 
+// Fetch existing categories
+$queryCategories = "SELECT * FROM categories";
+$statementCategories = $db->query($queryCategories);
+$categories = $statementCategories->fetchAll(PDO::FETCH_ASSOC);
+
+// Handle form submission for adding a new game
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
     $title = $_POST['title'];
     $description = $_POST['description'];
@@ -32,11 +39,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
         }
     }
 }
+
+// Handle form submission for adding a new category
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_category'])) {
+    $category_name = $_POST['category_name'];
+    $description = $_POST['description'];
+
+    // Validate form data
+    if (empty($category_name) || empty($description)) {
+        $error_message = "All fields are required.";
+    } else {
+        // Insert the category details into the database
+        $query = "INSERT INTO categories (category_name, description) VALUES (:category_name, :description)";
+        $statement = $db->prepare($query);
+        $statement->bindParam(':category_name', $category_name, PDO::PARAM_STR);
+        $statement->bindParam(':description', $description, PDO::PARAM_STR);
+
+        if ($statement->execute()) {
+            header("Location: manage_games.php");
+            exit;
+        } else {
+            $error_message = "Failed to add the category. Please try again.";
+        }
+    }
+}
+
+// Function to generate slug from title
 function generateSlug($title)
 {
     return strtolower(str_replace(' ', '-', $title));
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -77,13 +109,28 @@ function generateSlug($title)
                 <label for="category" class="form-label">Category</label>
                 <select class="form-select" id="category" name="category_id" required>
                     <option value="">Select a category</option>
-                    <option value="1">Action</option>
-                    <option value="2">Adventure</option>
-                    <option value="3">Sports/Racing</option>
+                    <?php foreach ($categories as $category): ?>
+                        <option value="<?= $category['category_id'] ?>"><?= $category['category_name'] ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <button type="submit" class="btn btn-primary" name="add_game">Add Game</button>
         </form>
+
+        <h2>Add Category</h2>
+        <form method="post">
+            <div class="mb-3">
+                <label for="category_name" class="form-label">Category Name</label>
+                <input type="text" class="form-control" id="category_name" name="category_name" required>
+            </div>
+            <div class="mb-3">
+                <label for="category_description" class="form-label">Category Description</label>
+                <textarea class="form-control" id="category_description" name="description" rows="3"
+                    required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" name="add_category">Add Category</button>
+        </form>
+
         <h2>Existing Games</h2>
         <div class="row">
             <?php foreach ($games as $game): ?>
@@ -91,15 +138,11 @@ function generateSlug($title)
                     <div class="card mb-4">
                         <div class="card-body">
                             <h5 class="card-title"><?= $game['title'] ?></h5>
-                            <!-- <p class="card-text"><?= $game['description'] ?></p> -->
                             <p class="card-text">Price: <?= $game['price'] ?></p>
                             <div class="d-flex justify-content-between align-items-center">
-                                <!-- View Game -->
                                 <a href="gamepage.php?id=<?= $game['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>"
                                     class="btn btn-primary">View Game</a>
-                                <!-- Edit -->
                                 <a href="editgame.php?id=<?= $game['game_id'] ?>" class="btn btn-primary">Edit</a>
-                                <!-- Delete -->
                                 <form method="post" action="deletegame.php">
                                     <input type="hidden" name="game_id" value="<?= $game['game_id'] ?>">
                                     <button type="submit" class="btn btn-danger"

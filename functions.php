@@ -1,6 +1,7 @@
 <?php
 require ('./includes/connect.php');
 
+// User Management Functions
 function addUser($email, $password)
 {
     global $db;
@@ -46,3 +47,26 @@ function getAllUsers()
     }
     return $users;
 }
+
+// Category Management Functions
+
+function updateCategory($category_id, $category_name, $description)
+{
+    global $db;
+    $query = "UPDATE categories SET category_name = :category_name, description = :description WHERE category_id = :category_id";
+    $statement = $db->prepare($query);
+    $statement->bindParam(':category_id', $category_id);
+    $statement->bindParam(':category_name', $category_name);
+    $statement->bindParam(':description', $description);
+    $statement->execute();
+}
+
+function getAllCategories()
+{
+    global $db;
+    $query = "SELECT * FROM categories";
+    $statement = $db->query($query);
+    $categories = $statement->fetchAll(PDO::FETCH_ASSOC);
+    return $categories;
+}
+?>
