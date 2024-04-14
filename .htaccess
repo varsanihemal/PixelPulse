@@ -1,0 +1,2 @@
+RewriteEngine On
+RewriteRule ^([0-9]+)/([^/]+)/?$ gamepage.php?id=$1&slug=$2 [L]
