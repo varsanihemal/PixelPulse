@@ -69,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $captcha = substr(md5(mt_rand()), 0, 6);
 $_SESSION['captcha'] = $captcha;
 
-$keepContent = isset($_POST['content']) ? $_POST['content'] : '';
+$content = isset($_POST['content']) ? $_POST['content'] : '';
 
 // Generate a random CAPTCHA code
 $captcha = substr(md5(mt_rand()), 0, 6);
@@ -109,7 +109,7 @@ $_SESSION['captcha'] = $captcha;
             <?php endif; ?>
             <div class="mb-3">
                 <label for="content" class="form-label">Comment</label>
-                <textarea class="form-control" id="content" name="content" rows="3" required><?= htmlspecialchars($keepContent) ?></textarea>
+                <textarea class="form-control" id="content" name="content" rows="3" required><?= htmlspecialchars($content) ?></textarea>
             </div>
             <div class="mb-3">
                 <label for="captcha" class="form-label">CAPTCHA</label><br>
