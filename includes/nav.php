@@ -29,7 +29,7 @@
                 <li><a class="dropdown-item" href="dashboard.php">Dashboard</a></li>
                 <li><a class="dropdown-item" href="manage_games.php">Manage Games</a></li>
               <?php endif; ?>
-              <li><a class="dropdown-item" href="#">Your Profile</a></li>
+              <!-- <li><a class="dropdown-item" href="#">Your Profile</a></li> -->
               <li><a class="dropdown-item" href="logout.php">Logout</a></li>
             </ul>
           </li>

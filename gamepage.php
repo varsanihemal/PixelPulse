@@ -8,28 +8,26 @@ $isLoggedIn = isset($_SESSION['user_id']);
 // Check if the user is an admin
 $isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
 
-if (isset($_GET['id']) && isset($_GET['slug'])) {
+if (isset($_GET['id'])) {
     $gamePageId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-    $slug = filter_input(INPUT_GET, 'slug', FILTER_SANITIZE_STRING);
 
     if ($gamePageId === false || $gamePageId === null || $gamePageId <= 0) {
         header("Location: index.php");
         exit;
     }
 
-    // Fetch game by both id and slug
-    $query = "SELECT * FROM games WHERE game_id = :id AND slug = :slug";
+    $query = "SELECT * FROM games WHERE game_id = :id";
     $statement = $db->prepare($query);
     $statement->bindParam(':id', $gamePageId, PDO::PARAM_INT);
-    $statement->bindParam(':slug', $slug, PDO::PARAM_STR);
+
     $statement->execute();
+
     $fullgame = $statement->fetch();
 
     if (!$fullgame) {
         header("Location: index.php");
         exit;
     }
-
     // Fetch comments for the game from the database
     $query = "SELECT * FROM comments WHERE game_id = :game_id ORDER BY created_at DESC";
     $statement = $db->prepare($query);
@@ -81,13 +79,12 @@ if (isset($_GET['id']) && isset($_GET['slug'])) {
                     <?= $fullgame['release_date'] ?>
                 </p>
                 <?php if ($isAdmin): ?>
-                    <a href="manage_comments.php?id=<?= $gamePageId ?>&slug=<?= $slug ?>" class="btn btn-primary">Manage
-                        Comments</a>
+                    <a href="manage_comments.php?id=<?= $gamePageId ?>" class="btn btn-primary">Manage Comments</a>
                 <?php endif; ?>
                 <?php if ($isLoggedIn && $isAdmin): ?>
-                    <a href="editgame.php?id=<?= $gamePageId ?>&slug=<?= $slug ?>" class="btn btn-primary">Edit</a>
+                    <a href="editgame.php?id=<?= $gamePageId ?>" class="btn btn-primary">Edit</a>
                 <?php endif; ?>
-                <a href="comment.php?id=<?= $gamePageId ?>&slug=<?= $slug ?>" class="btn btn-primary">Add Comment</a>
+                <a href="comment.php?id=<?= $gamePageId ?>" class="btn btn-primary">Add Comment</a>
             </div>
         </div>
         <!-- Comment -->

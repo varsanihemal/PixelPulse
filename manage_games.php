@@ -18,24 +18,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
     $description = $_POST['description'];
     $price = $_POST['price'];
     $category_id = $_POST['category_id'];
+    $image_path = ''; // Initialize image path
+
+    // Handle image upload
+    if ($_FILES['game_image']['error'] === UPLOAD_ERR_OK) {
+        $file_tmp_name = $_FILES['game_image']['tmp_name'];
+        $file_name = $_FILES['game_image']['name'];
+        $file_type = $_FILES['game_image']['type'];
+
+        // Test if uploaded file is an image
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        if (in_array($file_type, $allowed_types)) {
+            // Move uploaded file to uploads directory
+            $uploads_dir = 'uploads/';
+            $target_path = $uploads_dir . $file_name;
+            if (move_uploaded_file($file_tmp_name, $target_path)) {
+                $image_path = $target_path;
+            } else {
+                $error_message .= "Failed to move uploaded file.";
+            }
+        } else {
+            $error_message .= "Uploaded file is not a valid image.";
+        }
+    }
 
     // Validate form data
     if (empty($title) || empty($description) || empty($price) || empty($category_id)) {
-        $error_message = "All fields are required.";
+        $error_message .= "All fields are required.";
     } else {
         // Insert the game details into the database
-        $query = "INSERT INTO games (category_id, title, description, price) VALUES (:category_id, :title, :description, :price)";
+        $query = "INSERT INTO games (category_id, title, description, price, cover_image_path) VALUES (:category_id, :title, :description, :price, :cover_image_path)";
         $statement = $db->prepare($query);
         $statement->bindParam(':category_id', $category_id, PDO::PARAM_INT);
         $statement->bindParam(':title', $title, PDO::PARAM_STR);
         $statement->bindParam(':description', $description, PDO::PARAM_STR);
         $statement->bindParam(':price', $price, PDO::PARAM_STR);
+        $statement->bindParam(':cover_image_path', $image_path, PDO::PARAM_STR);
 
         if ($statement->execute()) {
             header("Location: allgames.php");
             exit;
         } else {
-            $error_message = "Failed to add the game. Please try again.";
+            $error_message .= "Failed to add the game. Please try again.";
         }
     }
 }
@@ -47,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_category'])) {
 
     // Validate form data
     if (empty($category_name) || empty($description)) {
-        $error_message = "All fields are required.";
+        $error_message .= "All fields are required.";
     } else {
         // Insert the category details into the database
         $query = "INSERT INTO categories (category_name, description) VALUES (:category_name, :description)";
@@ -59,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_category'])) {
             header("Location: manage_games.php");
             exit;
         } else {
-            $error_message = "Failed to add the category. Please try again.";
+            $error_message .= "Failed to add the category. Please try again.";
         }
     }
 }
@@ -92,7 +116,7 @@ function generateSlug($title)
                 <?= $error_message ?>
             </div>
         <?php endif; ?>
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
                 <input type="text" class="form-control" id="title" name="title" required>
@@ -114,6 +138,11 @@ function generateSlug($title)
                     <?php endforeach; ?>
                 </select>
             </div>
+            <div class="mb-3">
+                <label for="game_image" class="form-label">Game Image</label>
+                <input type="file" class="form-control" id="game_image" name="game_image">
+            </div>
+
             <button type="submit" class="btn btn-primary" name="add_game">Add Game</button>
         </form>
 
@@ -139,6 +168,7 @@ function generateSlug($title)
                         <div class="card-body">
                             <h5 class="card-title"><?= $game['title'] ?></h5>
                             <p class="card-text">Price: <?= $game['price'] ?></p>
+                            <!-- Display other game details -->
                             <div class="d-flex justify-content-between align-items-center">
                                 <a href="gamepage.php?id=<?= $game['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>"
                                     class="btn btn-primary">View Game</a>
@@ -149,6 +179,7 @@ function generateSlug($title)
                                         onclick="return confirm('Are you sure you want to delete this game?')">Delete</button>
                                 </form>
                             </div>
+
                         </div>
                     </div>
                 </div>

@@ -4,21 +4,39 @@ require ('includes/connect.php');
 include ('fetch.php');
 
 // Function to fetch games by category
+// Function to fetch games by category
 function fetchByCategory($category)
 {
-    global $statement_action, $statement_adventure, $statement_sports;
+    global $db;
 
-    switch ($category) {
-        case 'action':
-            return $statement_action->fetchAll();
-        case 'adventure':
-            return $statement_adventure->fetchAll();
-        case 'sports':
-            return $statement_sports->fetchAll();
-        default:
-            return array_merge($statement_action->fetchAll(), $statement_adventure->fetchAll(), $statement_sports->fetchAll());
+    // Construct the SQL query to fetch games based on the category
+    $query = "SELECT g.* FROM games g ";
+    if (!empty($category)) {
+        $query .= "JOIN categories c ON g.category_id = c.category_id WHERE c.category_name = :category";
     }
+
+    // Prepare the query
+    $statement = $db->prepare($query);
+
+    // Bind the category parameter if it's provided
+    if (!empty($category)) {
+        $statement->bindParam(':category', $category);
+    }
+
+    // Execute the query
+    $statement->execute();
+
+    // Fetch the results
+    $games = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+    return $games;
 }
+
+
+// Fetch categories from the database
+$query = "SELECT * FROM categories";
+$statement = $db->query($query);
+$categories = $statement->fetchAll(PDO::FETCH_ASSOC);
 
 // Sort functions
 function sortTitle($a, $b)
@@ -58,7 +76,8 @@ if ($isLoggedIn && isset($_GET['sort'])) {
 }
 
 // Function to generate slug from title
-function generateSlug($title) {
+function generateSlug($title)
+{
     return strtolower(str_replace(' ', '-', $title));
 }
 
@@ -87,15 +106,14 @@ function generateSlug($title) {
             Categories
         </a>
         <ul class="dropdown-menu">
-            <li><a class="dropdown-item"
-                    href="?category=action<?= isset($_GET['sort']) ? '&sort=' . $_GET['sort'] : '' ?>">Action</a>
-            </li>
-            <li><a class="dropdown-item"
-                    href="?category=adventure<?= isset($_GET['sort']) ? '&sort=' . $_GET['sort'] : '' ?>">Adventure</a>
-            </li>
-            <li><a class="dropdown-item"
-                    href="?category=sports<?= isset($_GET['sort']) ? '&sort=' . $_GET['sort'] : '' ?>">Sports/Racing</a>
-            </li>
+            <?php foreach ($categories as $category): ?>
+                <li>
+                    <a class="dropdown-item"
+                        href="?category=<?= strtolower($category['category_name']) ?><?= isset($_GET['sort']) ? '&sort=' . $_GET['sort'] : '' ?>">
+                        <?= $category['category_name'] ?>
+                    </a>
+                </li>
+            <?php endforeach; ?>
             <li><a class="dropdown-item" href="?<?= isset($_GET['sort']) ? 'sort=' . $_GET['sort'] : '' ?>">View All
                     Games</a></li>
         </ul>
