@@ -26,14 +26,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
         $file_name = $_FILES['game_image']['name'];
         $file_type = $_FILES['game_image']['type'];
 
-        // Test if uploaded file is an image
-        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        // Testing if the uploaded file is an image
+        $allowed_types = ['image/jpeg', 'image/png', 'image/avif'];
         if (in_array($file_type, $allowed_types)) {
-            // Move uploaded file to uploads directory
+            // Moving uploaded file to uploads directory
             $uploads_dir = 'uploads/';
             $target_path = $uploads_dir . $file_name;
             if (move_uploaded_file($file_tmp_name, $target_path)) {
                 $image_path = $target_path;
+
+                // Resize uploaded image
+                list($width, $height) = getimagesize($image_path);
+                $new_width = 200;
+                $new_height = 266;
+
+                // Resampling
+                switch ($file_type) {
+                    case 'image/jpeg':
+                        $image_source = imagecreatefromjpeg($image_path);
+                        break;
+                    case 'image/png':
+                        $image_source = imagecreatefrompng($image_path);
+                        break;
+                    case 'image/avif':
+                        $image_source = imagecreatefromavif($image_path);
+                        break;
+                }
+
+                $image_resized = imagecreatetruecolor($new_width, $new_height);
+                imagecopyresampled($image_resized, $image_source, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+
+                // Save resized image
+                $resized_image_path = $uploads_dir . 'resized_' . $file_name;
+                switch ($file_type) {
+                    case 'image/jpeg':
+                        imagejpeg($image_resized, $resized_image_path);
+                        break;
+                    case 'image/png':
+                        imagepng($image_resized, $resized_image_path);
+                        break;
+                    case 'image/avif':
+                        imageavif($image_resized, $resized_image_path);
+                        break;
+                }
+
+                // Update $image_path to point to the resized image
+                $image_path = $resized_image_path;
+
+                // Free up memory
+                imagedestroy($image_source);
+                imagedestroy($image_resized);
             } else {
                 $error_message .= "Failed to move uploaded file.";
             }
