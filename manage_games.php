@@ -2,6 +2,9 @@
 session_start();
 include ('./includes/connect.php');
 
+// Initialize error message variable
+$error_message = '';
+
 // Fetch existing games
 $query = "SELECT * FROM games";
 $statement = $db->query($query);
@@ -18,7 +21,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
     $description = $_POST['description'];
     $price = $_POST['price'];
     $category_id = $_POST['category_id'];
+    $release_date = $_POST['release_date'];
     $image_path = ''; // Initialize image path
+
+    // Initialize error upload flag
+    $error_upload = false;
 
     // Handle image upload
     if ($_FILES['game_image']['error'] === UPLOAD_ERR_OK) {
@@ -26,81 +33,95 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
         $file_name = $_FILES['game_image']['name'];
         $file_type = $_FILES['game_image']['type'];
 
-        // Testing if the uploaded file is an image
-        $allowed_types = ['image/jpeg', 'image/png', 'image/avif'];
-        if (in_array($file_type, $allowed_types)) {
-            // Moving uploaded file to uploads directory
-            $uploads_dir = 'uploads/';
-            $target_path = $uploads_dir . $file_name;
-            if (move_uploaded_file($file_tmp_name, $target_path)) {
-                $image_path = $target_path;
-
-                // Resize uploaded image
-                list($width, $height) = getimagesize($image_path);
-                $new_width = 200;
-                $new_height = 266;
-
-                // Resampling
-                switch ($file_type) {
-                    case 'image/jpeg':
-                        $image_source = imagecreatefromjpeg($image_path);
-                        break;
-                    case 'image/png':
-                        $image_source = imagecreatefrompng($image_path);
-                        break;
-                    case 'image/avif':
-                        $image_source = imagecreatefromavif($image_path);
-                        break;
-                }
-
-                $image_resized = imagecreatetruecolor($new_width, $new_height);
-                imagecopyresampled($image_resized, $image_source, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
-
-                // Save resized image
-                $resized_image_path = $uploads_dir . 'resized_' . $file_name;
-                switch ($file_type) {
-                    case 'image/jpeg':
-                        imagejpeg($image_resized, $resized_image_path);
-                        break;
-                    case 'image/png':
-                        imagepng($image_resized, $resized_image_path);
-                        break;
-                    case 'image/avif':
-                        imageavif($image_resized, $resized_image_path);
-                        break;
-                }
-
-                // Update $image_path to point to the resized image
-                $image_path = $resized_image_path;
-
-                // Free up memory
-                imagedestroy($image_source);
-                imagedestroy($image_resized);
-            } else {
-                $error_message .= "Failed to move uploaded file.";
-            }
+        // Check if the file type is PDF
+        if ($file_type === 'application/pdf') {
+            $error_message .= "PDF files are not allowed.";
+            $error_upload = true; // Set error upload flag
         } else {
-            $error_message .= "Uploaded file is not a valid image.";
+            // Testing if the uploaded file is an image
+            $allowed_types = ['image/jpeg', 'image/png', 'image/avif'];
+            if (in_array($file_type, $allowed_types)) {
+                // Moving uploaded file to uploads directory
+                $uploads_dir = 'uploads/';
+                $target_path = $uploads_dir . $file_name;
+                if (move_uploaded_file($file_tmp_name, $target_path)) {
+                    $image_path = $target_path;
+
+                    // Resize uploaded image
+                    list($width, $height) = getimagesize($image_path);
+                    $new_width = 200;
+                    $new_height = 266;
+
+                    // Resampling
+                    switch ($file_type) {
+                        case 'image/jpeg':
+                            $image_source = imagecreatefromjpeg($image_path);
+                            break;
+                        case 'image/png':
+                            $image_source = imagecreatefrompng($image_path);
+                            break;
+                        case 'image/avif':
+                            $image_source = imagecreatefromavif($image_path);
+                            break;
+                    }
+
+                    $image_resized = imagecreatetruecolor($new_width, $new_height);
+                    imagecopyresampled($image_resized, $image_source, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+
+                    // Save resized image
+                    $resized_image_path = $uploads_dir . 'resized_' . $file_name;
+                    switch ($file_type) {
+                        case 'image/jpeg':
+                            imagejpeg($image_resized, $resized_image_path);
+                            break;
+                        case 'image/png':
+                            imagepng($image_resized, $resized_image_path);
+                            break;
+                        case 'image/avif':
+                            imageavif($image_resized, $resized_image_path);
+                            break;
+                    }
+
+                    // Update $image_path to point to the resized image
+                    $image_path = $resized_image_path;
+
+                    // Free up memory
+                    imagedestroy($image_source);
+                    imagedestroy($image_resized);
+                } else {
+                    $error_message .= "Failed to move uploaded file.";
+                    $error_upload = true; // Set error upload flag
+                }
+            } else {
+                $error_message .= "Uploaded file is not a valid image.";
+                $error_upload = true; // Set error upload flag
+            }
         }
+    } else {
+        $error_message .= "Error uploading file.";
+        $error_upload = true; // Set error upload flag
     }
 
     // Validate form data
-    if (empty($title) || empty($description) || empty($price) || empty($category_id)) {
+    if (empty($title) || empty($description) || empty($price) || empty($category_id) || $error_upload) {
         $error_message .= "All fields are required.";
     } else {
         // Insert the game details into the database
-        $query = "INSERT INTO games (category_id, title, description, price, cover_image_path) VALUES (:category_id, :title, :description, :price, :cover_image_path)";
+        $query = "INSERT INTO games (category_id, title, description, price, release_date, cover_image_path) VALUES (:category_id, :title, :description, :price, :release_date, :cover_image_path)";
         $statement = $db->prepare($query);
         $statement->bindParam(':category_id', $category_id, PDO::PARAM_INT);
         $statement->bindParam(':title', $title, PDO::PARAM_STR);
         $statement->bindParam(':description', $description, PDO::PARAM_STR);
         $statement->bindParam(':price', $price, PDO::PARAM_STR);
+        $statement->bindParam(':release_date', $release_date, PDO::PARAM_STR); 
         $statement->bindParam(':cover_image_path', $image_path, PDO::PARAM_STR);
 
         if ($statement->execute()) {
+            // Redirect only if the game is successfully added
             header("Location: allgames.php");
             exit;
         } else {
+            // No redirection in case of error, handle it below
             $error_message .= "Failed to add the game. Please try again.";
         }
     }
@@ -147,6 +168,7 @@ function generateSlug($title)
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
+
 </head>
 
 <body>
@@ -166,6 +188,10 @@ function generateSlug($title)
             <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
                 <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="release_date" class="form-label">Release Date</label>
+                <input type="date" class="form-control" id="release_date" name="release_date" required>
             </div>
             <div class="mb-3">
                 <label for="price" class="form-label">Price</label>
