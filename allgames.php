@@ -93,14 +93,36 @@ function generateSlug($title)
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="./utilities/viewall.css">
+    <style>
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 20px;
+        }
 
+        .game {
+            width: 200px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .game img {
+            width: 200px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        
+    </style>
 </head>
 
 <body>
 
+    <!-- Navbar -->
     <?php include ('./includes/nav.php'); ?>
 
+    <!-- Categories Dropdown -->
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Categories
@@ -129,22 +151,26 @@ function generateSlug($title)
         </div>
     <?php endif; ?>
 
+    <!-- Game Cards -->
     <div class="card-container">
         <?php foreach ($rows as $row): ?>
-            <div class="game">
+            <div class="game card">
                 <?php if (!empty($row['cover_image_path'])): ?>
                     <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>">
-                        <!-- <img src="<?= $row['cover_image_path'] ?>" alt=""> -->
+                        <img src="<?= $row['cover_image_path'] ?>" class="card-img-top" alt="">
                     </a>
                 <?php endif; ?>
-                <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>">
-                    <p><?= $row['title'] ?></p>
-                </a>
-                <?php if (isset($_GET['sort']) && $_GET['sort'] === 'release_date'): ?>
-                    <p>Release Date: <?= $row['release_date'] ?></p>
-                <?php elseif (isset($_GET['sort']) && $_GET['sort'] === 'price'): ?>
-                    <p>Price: <?= $row['price'] ?></p>
-                <?php endif; ?>
+                <div class="card-body">
+                    <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>"
+                        class="card-link">
+                        <p class="card-text"><?= $row['title'] ?></p>
+                    </a>
+                    <?php if (isset($_GET['sort']) && $_GET['sort'] === 'release_date'): ?>
+                        <p class="card-text">Release Date: <?= $row['release_date'] ?></p>
+                    <?php elseif (isset($_GET['sort']) && $_GET['sort'] === 'price'): ?>
+                        <p class="card-text">Price: <?= $row['price'] ?></p>
+                    <?php endif; ?>
+                </div>
             </div>
         <?php endforeach; ?>
     </div>

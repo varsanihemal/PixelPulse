@@ -88,8 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 <label for="inputEmail" class="form-label">Email address</label>
                 <input type="email" name="email" class="form-control" id="inputEmail" aria-describedby="emailHelp"
                     placeholder="Enter email">
-                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone
-                    else.</small>
             </div>
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>

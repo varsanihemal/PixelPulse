@@ -46,7 +46,6 @@ $users = getAllUsers();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="./includes/dashboard.css">
 </head>
 
 <body>
@@ -70,8 +69,8 @@ $users = getAllUsers();
             </div>
             <button type="submit" class="btn btn-primary" name="add_user">Add User</button>
         </form>
-        <h2>All Users</h2>
-        <table class="table">
+        <table class="table users-table">
+            <h2>All Users</h2>
             <thead>
                 <tr>
                     <th>User ID</th>

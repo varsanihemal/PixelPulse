@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_game'])) {
         $statement->bindParam(':title', $title, PDO::PARAM_STR);
         $statement->bindParam(':description', $description, PDO::PARAM_STR);
         $statement->bindParam(':price', $price, PDO::PARAM_STR);
-        $statement->bindParam(':release_date', $release_date, PDO::PARAM_STR); 
+        $statement->bindParam(':release_date', $release_date, PDO::PARAM_STR);
         $statement->bindParam(':cover_image_path', $image_path, PDO::PARAM_STR);
 
         if ($statement->execute()) {
@@ -168,6 +168,11 @@ function generateSlug($title)
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .categoryForm,.existing-games {
+            margin-top: 35px;
+        }
+    </style>
 
 </head>
 
@@ -214,8 +219,8 @@ function generateSlug($title)
             <button type="submit" class="btn btn-primary" name="add_game">Add Game</button>
         </form>
 
-        <h2>Add Category</h2>
-        <form method="post">
+        <form method="post" class="categoryForm">
+            <h2>Add Category</h2>
             <div class="mb-3">
                 <label for="category_name" class="form-label">Category Name</label>
                 <input type="text" class="form-control" id="category_name" name="category_name" required>
@@ -228,8 +233,8 @@ function generateSlug($title)
             <button type="submit" class="btn btn-primary" name="add_category">Add Category</button>
         </form>
 
-        <h2>Existing Games</h2>
-        <div class="row">
+        <div class="row existing-games">
+            <h2>Existing Games</h2>
             <?php foreach ($games as $game): ?>
                 <div class="col-md-4">
                     <div class="card mb-4">
