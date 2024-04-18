@@ -93,7 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
-                <!-- Sanitization -->
                 <textarea id="description" name="description"><?= htmlspecialchars($game['description']) ?></textarea>
             </div>
             <div class="mb-3">

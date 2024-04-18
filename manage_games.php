@@ -169,7 +169,8 @@ function generateSlug($title)
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
     <style>
-        .categoryForm,.existing-games {
+        .categoryForm,
+        .existing-games {
             margin-top: 35px;
         }
     </style>
@@ -243,7 +244,7 @@ function generateSlug($title)
                             <p class="card-text">Price: <?= $game['price'] ?></p>
                             <!-- Display other game details -->
                             <div class="d-flex justify-content-between align-items-center">
-                                <a href="gamepage.php?id=<?= $game['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>"
+                                <a href="gamepage.php?id=5&slug=<?php echo isset($row['slug']) ? $row['slug'] : ''; ?>"
                                     class="btn btn-primary">View Game</a>
                                 <a href="editgame.php?id=<?= $game['game_id'] ?>" class="btn btn-primary">Edit</a>
                                 <form method="post" action="deletegame.php">

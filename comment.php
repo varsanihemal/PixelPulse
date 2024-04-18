@@ -9,7 +9,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 $isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
 
 if (isset($_GET['id'])) {
-    $gamePageId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+    $gamePageId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT); // 
 
     if ($gamePageId === false || $gamePageId === null || $gamePageId <= 0) {
         header("Location: index.php");
@@ -56,14 +56,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($isLoggedIn) {
             $userId = $_SESSION['user_id'];
             // Fetch username if the user is logged in
-            $query = "SELECT username FROM users WHERE user_id = :user_id";
-            $statement = $db->prepare($query);
-            $statement->bindParam(':user_id', $userId, PDO::PARAM_INT);
-            $statement->execute();
-            $user = $statement->fetch();
+            $queryUsername = "SELECT username FROM users WHERE user_id = :user_id";
+            $statementUsername = $db->prepare($queryUsername);
+            $statementUsername->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $statementUsername->execute();
+            $user = $statementUsername->fetch();
             $username = $user['username'];
         } else {
-            // If the user is not logged in, set the username to the one entered in the form or 'Anonymous'
             $username = isset($_POST['name']) ? trim($_POST['name']) : null;
         }
         $statement->bindParam(':user_id', $userId, PDO::PARAM_INT);

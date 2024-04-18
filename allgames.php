@@ -4,7 +4,6 @@ require ('includes/connect.php');
 include ('fetch.php');
 
 // Function to fetch games by category
-// Function to fetch games by category
 function fetchByCategory($category)
 {
     global $db;
@@ -112,8 +111,12 @@ function generateSlug($title)
             height: auto;
             margin-bottom: 10px;
         }
-
-        
+        .categories-dropdown ul {
+            list-style: none;
+        }
+        .sort{
+            padding-left: 30px;
+        }
     </style>
 </head>
 
@@ -123,23 +126,29 @@ function generateSlug($title)
     <?php include ('./includes/nav.php'); ?>
 
     <!-- Categories Dropdown -->
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Categories
-        </a>
-        <ul class="dropdown-menu">
-            <?php foreach ($categories as $category): ?>
-                <li>
-                    <a class="dropdown-item"
-                        href="?category=<?= strtolower($category['category_name']) ?><?= isset($_GET['sort']) ? '&sort=' . $_GET['sort'] : '' ?>">
-                        <?= $category['category_name'] ?>
-                    </a>
-                </li>
-            <?php endforeach; ?>
-            <li><a class="dropdown-item" href="?<?= isset($_GET['sort']) ? 'sort=' . $_GET['sort'] : '' ?>">View All
-                    Games</a></li>
+    <div class="categories-dropdown">
+        <ul>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    Categories
+                </a>
+                <ul class="dropdown-menu">
+                    <?php foreach ($categories as $category): ?>
+                        <li>
+                            <a class="dropdown-item"
+                                href="?category=<?= strtolower($category['category_name']) ?><?= isset($_GET['sort']) ? '&sort=' . $_GET['sort'] : '' ?>">
+                                <?= $category['category_name'] ?>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                    <li><a class="dropdown-item" href="?<?= isset($_GET['sort']) ? 'sort=' . $_GET['sort'] : '' ?>">View
+                            All
+                            Games</a></li>
+                </ul>
+            </li>
         </ul>
-    </li>
+    </div>
 
     <!-- Sorting options -->
     <?php if ($isLoggedIn): ?>

@@ -53,7 +53,7 @@ $users = getAllUsers();
     <div class="container">
         <h1>Manage Users</h1>
         <h2>Add New User</h2>
-        <form action="" method="post">
+        <form action="#" method="post">
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" id="email" name="email" required>
@@ -69,8 +69,8 @@ $users = getAllUsers();
             </div>
             <button type="submit" class="btn btn-primary" name="add_user">Add User</button>
         </form>
+        <h2>All Users</h2>
         <table class="table users-table">
-            <h2>All Users</h2>
             <thead>
                 <tr>
                     <th>User ID</th>
@@ -91,7 +91,7 @@ $users = getAllUsers();
                             <?php endif; ?>
                         </td>
                         <td>
-                            <form action="" method="post">
+                            <form action="#" method="post">
                                 <input type="hidden" name="user_id" value="<?= $user['user_id'] ?>">
                                 <input type="text" name="email" value="<?= $user['email'] ?>">
                                 <input type="text" name="username" value="<?= $user['username'] ?>"
@@ -134,7 +134,7 @@ $users = getAllUsers();
                         <td><?= $category['description'] ?></td>
                         <td>
                             <!-- Form to update category -->
-                            <form action="" method="post">
+                            <form action="#" method="post">
                                 <input type="hidden" name="category_id" value="<?= $category['category_id'] ?>">
                                 <input type="text" name="category_name" value="<?= $category['category_name'] ?>">
                                 <textarea name="category_description"><?= $category['description'] ?></textarea>
