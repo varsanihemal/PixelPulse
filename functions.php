@@ -13,11 +13,22 @@ function addUser($email, $password)
     $statement->execute();
 }
 
-function updateUser($user_id, $email)
+function updateUser($user_id, $email, $password = null)
 {
     global $db;
-    $query = "UPDATE users SET email = :email WHERE user_id = :user_id";
-    $statement = $db->prepare($query);
+
+    // If password is provided, update both email and password
+    if ($password !== null) {
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $query = "UPDATE users SET email = :email, password = :password WHERE user_id = :user_id";
+        $statement = $db->prepare($query);
+        $statement->bindParam(':password', $hashed_password);
+    } else {
+        // If password is not provided, update only email
+        $query = "UPDATE users SET email = :email WHERE user_id = :user_id";
+        $statement = $db->prepare($query);
+    }
+
     $statement->bindParam(':email', $email);
     $statement->bindParam(':user_id', $user_id);
     $statement->execute();

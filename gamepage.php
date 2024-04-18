@@ -29,7 +29,11 @@ if (isset($_GET['id'])) {
         exit;
     }
     // Fetch comments for the game from the database
-    $query = "SELECT * FROM comments WHERE game_id = :game_id ORDER BY created_at DESC";
+    $query = "SELECT c.*, u.username 
+          FROM comments c
+          LEFT JOIN users u ON c.user_id = u.user_id
+          WHERE c.game_id = :game_id 
+          ORDER BY c.created_at DESC";
     $statement = $db->prepare($query);
     $statement->bindParam(':game_id', $gamePageId, PDO::PARAM_INT);
     $statement->execute();
@@ -94,6 +98,13 @@ if (isset($_GET['id'])) {
                 <?php foreach ($comments as $comment): ?>
                     <?php if ($comment['moderation_status'] !== 'hidden'): ?> <!-- Check if the comment is not hidden -->
                         <li>
+                            <!-- Display the username if available, otherwise display 'Anonymous' -->
+                            <?php if ($comment['username'] !== null): ?>
+                                <?= $comment['username'] ?>:
+                            <?php else: ?>
+                                Anonymous:
+                            <?php endif; ?>
+
                             <?= $comment['content'] ?>
                             <p>Created at: <?= $comment['created_at'] ?></p>
                             <?php if ($comment['updated_at'] !== null): ?>
@@ -104,6 +115,7 @@ if (isset($_GET['id'])) {
                 <?php endforeach; ?>
             </ul>
         <?php endif; ?>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

@@ -1,4 +1,5 @@
 <?php
+// SCRAP CODE
 
 require('./includes/connect.php');
 
@@ -9,4 +10,6 @@ $query = "UPDATE users SET password = :password WHERE email = 'admin123@gmail.co
 $statement = $db->prepare($query);
 $statement->bindParam(':password', $hashed_pass);
 $statement->execute();
+
+
 

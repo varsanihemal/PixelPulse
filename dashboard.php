@@ -15,7 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['add_user'])) {
         addUser($_POST['email'], $_POST['password']);
     } elseif (isset($_POST['update_user'])) {
-        updateUser($_POST['user_id'], $_POST['email']);
+        // Check if the password field is not empty
+        if (!empty($_POST['password'])) {
+            // Update user's email and password
+            updateUser($_POST['user_id'], $_POST['email'], $_POST['password']);
+        } else {
+            // If password field is empty, update only the email
+            updateUser($_POST['user_id'], $_POST['email']);
+        }
     } elseif (isset($_POST['delete_user'])) {
         deleteUser($_POST['user_id']);
     } elseif (isset($_POST['update_category'])) {
@@ -25,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 $users = getAllUsers();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -77,15 +85,17 @@ $users = getAllUsers();
                             <?php endif; ?>
                         </td>
                         <td>
-                            <!-- Add buttons for update and delete actions -->
                             <form action="" method="post">
                                 <input type="hidden" name="user_id" value="<?= $user['user_id'] ?>">
                                 <!-- Add input field for updating email -->
                                 <input type="text" name="email" value="<?= $user['email'] ?>">
-                                <button type="submit" name="update_user" class="btn btn-primary">Update</button>
-                                <button type="submit" name="delete_user" class="btn btn-danger"
-                                    onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
+                                <!-- Add input field for updating password -->
+                                <input type="password" name="password" placeholder="Enter new password">
+                                <button type="submit" name="update_user" class="btn btn-primary"
+                                    onclick="return confirm('Are you sure you want to update this user?')">Update</button>
+                                <button type="submit" name="delete_user" class="btn btn-danger">Delete</button>
                             </form>
+
                         </td>
                     </tr>
                 <?php endforeach; ?>
