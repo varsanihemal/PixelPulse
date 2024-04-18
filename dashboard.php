@@ -13,7 +13,9 @@ $categories = getAllCategories();
 // Handle form submission for adding a new user
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['add_user'])) {
-        addUser($_POST['email'], $_POST['password']);
+        addUser($_POST['email'], $_POST['username'], $_POST['password']);
+        header("Location: login.php");
+        exit;
     } elseif (isset($_POST['update_user'])) {
         // Check if the password field is not empty
         if (!empty($_POST['password'])) {
@@ -21,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             updateUser($_POST['user_id'], $_POST['email'], $_POST['password']);
         } else {
             // If password field is empty, update only the email
-            updateUser($_POST['user_id'], $_POST['email']);
+            updateUser($_POST['user_id'], $_POST['email'], $_POST['username']);
         }
     } elseif (isset($_POST['delete_user'])) {
         deleteUser($_POST['user_id']);
@@ -58,6 +60,11 @@ $users = getAllUsers();
                 <input type="email" class="form-control" id="email" name="email" required>
             </div>
             <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+
+            <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
@@ -87,14 +94,15 @@ $users = getAllUsers();
                         <td>
                             <form action="" method="post">
                                 <input type="hidden" name="user_id" value="<?= $user['user_id'] ?>">
-                                <!-- Add input field for updating email -->
                                 <input type="text" name="email" value="<?= $user['email'] ?>">
-                                <!-- Add input field for updating password -->
+                                <input type="text" name="username" value="<?= $user['username'] ?>"
+                                    placeholder="Enter new username">
                                 <input type="password" name="password" placeholder="Enter new password">
                                 <button type="submit" name="update_user" class="btn btn-primary"
                                     onclick="return confirm('Are you sure you want to update this user?')">Update</button>
                                 <button type="submit" name="delete_user" class="btn btn-danger">Delete</button>
                             </form>
+
 
                         </td>
                     </tr>

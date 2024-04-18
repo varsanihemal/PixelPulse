@@ -2,34 +2,36 @@
 require ('./includes/connect.php');
 
 // User Management Functions
-function addUser($email, $password)
+function addUser($email, $username, $password)
 {
     global $db;
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-    $query = "INSERT INTO users (email, password) VALUES (:email, :password)";
+    $query = "INSERT INTO users (email, username, password) VALUES (:email, :username, :password)";
     $statement = $db->prepare($query);
     $statement->bindParam(':email', $email);
+    $statement->bindParam(':username', $username);
     $statement->bindParam(':password', $hashed_password);
     $statement->execute();
 }
 
-function updateUser($user_id, $email, $password = null)
+function updateUser($user_id, $email, $username, $password = null)
 {
     global $db;
 
-    // If password is provided, update both email and password
+    // If password is provided, update both email, username, and password
     if ($password !== null) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $query = "UPDATE users SET email = :email, password = :password WHERE user_id = :user_id";
+        $query = "UPDATE users SET email = :email, username = :username, password = :password WHERE user_id = :user_id";
         $statement = $db->prepare($query);
         $statement->bindParam(':password', $hashed_password);
     } else {
-        // If password is not provided, update only email
-        $query = "UPDATE users SET email = :email WHERE user_id = :user_id";
+        // If password is not provided, update only email and username
+        $query = "UPDATE users SET email = :email, username = :username WHERE user_id = :user_id";
         $statement = $db->prepare($query);
     }
 
     $statement->bindParam(':email', $email);
+    $statement->bindParam(':username', $username);
     $statement->bindParam(':user_id', $user_id);
     $statement->execute();
 }
