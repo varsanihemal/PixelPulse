@@ -29,7 +29,7 @@ if (isset($_GET['id'])) {
         exit;
     }
     // Fetch comments for the game from the database
-    $query = "SELECT c.*, u.username 
+    $query = "SELECT c.*, u.email 
           FROM comments c
           LEFT JOIN users u ON c.user_id = u.user_id
           WHERE c.game_id = :game_id 

@@ -1,6 +1,6 @@
 <?php
 session_start();
-require ('includes/connect.php');
+require('includes/connect.php');
 
 // Check if the user is logged in
 $isLoggedIn = isset($_SESSION['user_id']);
@@ -47,15 +47,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!isset($_SESSION['captcha']) || $_SESSION['captcha'] != $_POST['captcha']) {
         $captcha_error = "CAPTCHA code is incorrect. Please try again.";
     } else {
-        // Insert the comment into the database
-        $query = "INSERT INTO comments (game_id, user_id, username, content, created_at) VALUES (:game_id, :user_id, :username, :content, NOW())";
-        $statement = $db->prepare($query);
-        $statement->bindParam(':game_id', $gamePageId, PDO::PARAM_INT);
-
         // Check if the user is logged in
         if ($isLoggedIn) {
-            $userId = $_SESSION['user_id'];
-            // Fetch username if the user is logged in
+            $userId = $_SESSION['user_id']; // Ensure user_id is fetched for logged-in users
+
+            // Fetch username for logged-in users
             $queryUsername = "SELECT username FROM users WHERE user_id = :user_id";
             $statementUsername = $db->prepare($queryUsername);
             $statementUsername->bindParam(':user_id', $userId, PDO::PARAM_INT);
@@ -63,14 +59,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $user = $statementUsername->fetch();
             $username = $user['username'];
         } else {
-            $username = isset($_POST['name']) ? trim($_POST['name']) : null;
+            // Redirect guests to login page if they are not logged in
+            header("Location: login.php"); // Redirect to login if the user is not logged in
+            exit;
         }
-        $statement->bindParam(':user_id', $userId, PDO::PARAM_INT);
+
+        // Insert the comment into the database
+        $query = "INSERT INTO comments (game_id, user_id, username, content, created_at) 
+                  VALUES (:game_id, :user_id, :username, :content, NOW())";
+        $statement = $db->prepare($query);
+        $statement->bindParam(':game_id', $gamePageId, PDO::PARAM_INT);
+        $statement->bindParam(':user_id', $userId, $userId === null ? PDO::PARAM_NULL : PDO::PARAM_INT); // Handle null for guests
         $statement->bindParam(':username', $username, PDO::PARAM_STR);
         $statement->bindParam(':content', $content, PDO::PARAM_STR);
         $statement->execute();
 
-        // Redirect back to the game page after submitting the comment
+        // Redirect after the comment is successfully added
         header("Location: gamepage.php?id=$gamePageId");
         exit;
     }
@@ -98,7 +102,7 @@ $content = isset($_POST['content']) ? $_POST['content'] : '';
 
 <body>
 
-    <?php include ('includes/nav.php'); ?>
+    <?php include('includes/nav.php'); ?>
 
     <div class="container">
         <h2>Add Comment for <?= $fullgame['title']; ?></h2>
