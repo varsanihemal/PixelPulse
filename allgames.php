@@ -1,7 +1,7 @@
 <?php
 session_start();
-require ('includes/connect.php');
-include ('fetch.php');
+require('includes/connect.php');
+include('fetch.php');
 
 // Function to fetch games by category
 function fetchByCategory($category)
@@ -93,29 +93,87 @@ function generateSlug($title)
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
     <style>
+        a {
+            color: inherit;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            color: #ff6347;
+            text-decoration: underline;
+        }
+
+        ul.dropdown-menu li {
+            padding: 5px 10px;
+        }
+
+        ul.dropdown-menu li a {
+            color: #333;
+        }
+
+        ul.dropdown-menu li a:hover {
+            background-color: #f1f1f1;
+            color: #ff6347;
+        }
+
+        .game.card .card-body p {
+            color: white;
+        }
+
+        .game.card .card-body p:hover {
+            color: #ff6347;
+
+        }
+
         .card-container {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            padding: 20px;
+            padding: 10px;
         }
 
-        .game {
+        .game.card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(6px);
             width: 200px;
-            margin-bottom: 20px;
+        }
+
+        .game.card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .game.card .card-body {
+            padding: 8px;
             text-align: center;
+            font-size: 0.85em;
         }
 
-        .game img {
-            width: 200px;
-            height: auto;
-            margin-bottom: 10px;
+        .game.card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
-        .categories-dropdown ul {
-            list-style: none;
-        }
-        .sort{
-            padding-left: 30px;
+
+        @media (max-width: 768px) {
+            .card-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .game.card {
+                width: 130px;
+            }
+
+            .game.card img {
+                height: 85px;
+            }
         }
     </style>
 </head>
@@ -123,7 +181,7 @@ function generateSlug($title)
 <body>
 
     <!-- Navbar -->
-    <?php include ('./includes/nav.php'); ?>
+    <?php include('./includes/nav.php'); ?>
 
     <!-- Categories Dropdown -->
     <div class="categories-dropdown">
@@ -166,18 +224,19 @@ function generateSlug($title)
             <div class="game card">
                 <?php if (!empty($row['cover_image_path'])): ?>
                     <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>">
-                        <img src="<?= $row['cover_image_path'] ?>" class="card-img-top" alt="">
+                        <img src="<?= $row['cover_image_path'] ?>" class="card-img-top"
+                            alt="<?= htmlspecialchars($row['title']) ?>">
                     </a>
                 <?php endif; ?>
                 <div class="card-body">
                     <a href="gamepage.php?id=<?= $row['game_id'] ?>&slug=<?= generateSlug($row['title']) ?>"
                         class="card-link">
-                        <p class="card-text"><?= $row['title'] ?></p>
+                        <p class="card-text"><?= htmlspecialchars($row['title']) ?></p>
                     </a>
                     <?php if (isset($_GET['sort']) && $_GET['sort'] === 'release_date'): ?>
-                        <p class="card-text">Release Date: <?= $row['release_date'] ?></p>
+                        <p class="card-text">Release Date: <?= htmlspecialchars($row['release_date']) ?></p>
                     <?php elseif (isset($_GET['sort']) && $_GET['sort'] === 'price'): ?>
-                        <p class="card-text">Price: <?= $row['price'] ?></p>
+                        <p class="card-text">Price: <?= htmlspecialchars($row['price']) ?></p>
                     <?php endif; ?>
                 </div>
             </div>
